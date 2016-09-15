@@ -1,5 +1,6 @@
+# -*- coding: utf-8 -*-
+
 import logging
-from typing import Sequence, Dict
 
 
 class LogstashFormatter(logging.Formatter):
@@ -24,8 +25,8 @@ class LogstashFormatter(logging.Formatter):
     main_fmt = '{{\n{}\n}}'
     item_fmt = '"{}" => "{}"'
 
-    def __init__(self, fmt: Sequence = None, datefmt=None, rename: dict = None, version: str = None, *args, **kwargs):
-        super().__init__(fmt, datefmt, *args, **kwargs)
+    def __init__(self, fmt=None, datefmt=None, rename=None, version=None, *args, **kwargs):
+        super(LogstashFormatter, self).__init__(fmt, datefmt, *args, **kwargs)
 
         if fmt:
             self.fields = [f for f in fmt if f in self.RESERVED_ATTRS]
@@ -38,7 +39,7 @@ class LogstashFormatter(logging.Formatter):
 
         self.version = version
 
-    def to_logstash(self, obj: Dict):
+    def to_logstash(self, obj):
         return self.main_fmt.format(',\n'.join([self.item_fmt.format(k, v) for k, v in obj.items()]))
 
     def format(self, record):
@@ -49,7 +50,8 @@ class LogstashFormatter(logging.Formatter):
         if isinstance(_msg, dict):
             msg_dict = _msg
         else:
-            msg_dict = {'message': record.getMessage()}
+            msg_dict = {}
+            record.message = record.getMessage()
 
         extra_dict = {k: v for k, v in record.__dict__.items()
                       if k not in self.RESERVED_ATTRS and not k.startswith('_')}
@@ -65,8 +67,8 @@ class LogstashFormatter(logging.Formatter):
 
         # Replacing fields names if rename mapping exists
         for k, v in self.rename_map.items():
-            if v in fields_dict.keys():
-                fields_dict[k] = fields_dict.pop(v)
+            if k in fields_dict.keys():
+                fields_dict[v] = fields_dict.pop(k)
 
         # Adding logging schema version if exists
         if self.version:

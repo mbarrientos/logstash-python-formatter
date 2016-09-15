@@ -1,6 +1,9 @@
+# -*- coding: utf-8 -*-
+
 import logging
-from io import StringIO
 from unittest import TestCase
+
+from six import StringIO
 
 from logstash import LogstashFormatter
 
@@ -10,14 +13,17 @@ class LogstashLoggingTestCase(TestCase):
         self.stream = StringIO()
         self.logger = logging.getLogger()
         self.handler = logging.StreamHandler(self.stream)
-        self.handler.setFormatter(LogstashFormatter())
+        self.formatter = LogstashFormatter()
+        self.handler.setFormatter(self.formatter)
         self.logger.addHandler(self.handler)
 
     def test_logging_with_string(self):
         msg = 'foo_bar'
 
         self.logger.info(msg)
+
         logged = self.stream.getvalue()
+        print(type(logged))
 
         self.assertIn('"msg" => "{}"'.format(msg), logged)
         for field in LogstashFormatter.DEFAULT_FIELDS:
@@ -59,6 +65,7 @@ class LogstashLoggingTestCase(TestCase):
         logged = self.stream.getvalue()
 
         self.assertIn('"msg" =>', logged)
+        self.assertEqual(logged, self.formatter.to_logstash({"msg": "foo_bar"}) + "\n")
         self.assertEqual(logged.count('=>'), 1)
 
     def test_logging_renaming(self):
@@ -68,7 +75,7 @@ class LogstashLoggingTestCase(TestCase):
         self.logger.info(msg)
         logged = self.stream.getvalue()
 
+        print(logged)
+
         self.assertNotIn('asctime', logged)
         self.assertIn('timestamp', logged)
-
-
