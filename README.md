@@ -1,9 +1,9 @@
 logstash-python-formatter
 =========================
 
-Logging formatter for creating log entries in a JSON logstash-friendly format.
+Python logging formatter for creating log entries in a JSON **logstash-friendly** format.
 
-Supports renaming of python default logging fields to logstash friendly names. e.g: renaming `asctime` to `@timestamp`
+Supports renaming of python default logging fields to logstash friendly names (e.g: renaming `asctime` to `@timestamp`)
 
 LogstashFormatter can receive the following arguments:
 
@@ -12,7 +12,7 @@ LogstashFormatter can receive the following arguments:
 * `rename`, dictionary containing mapping of { key: new_key } to be renamed. Defaults to { 'asctime': '@timestamp' }.
 * `version`, version as for the @version attribute used in Logstash. Defaults to "1".
 
-###### Sample output:
+### Sample output:
 ```javascript
 {
   "@timestamp": "2016-09-28 16:24:24,799",
