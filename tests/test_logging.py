@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-
+import json
 import logging
 from unittest import TestCase
 
@@ -22,12 +22,13 @@ class LogstashLoggingTestCase(TestCase):
 
         self.logger.info(msg)
 
-        logged = self.stream.getvalue()
-        print(type(logged))
+        logged = json.loads(self.stream.getvalue())
 
-        self.assertIn('"msg" => "{}"'.format(msg), logged)
+        self.assertEqual(msg, logged["msg"])
         for field in LogstashFormatter.DEFAULT_FIELDS:
-            self.assertIn('"{}" =>'.format(field), logged)
+            if field in LogstashFormatter.DEFAULT_MAPPING:
+                field = LogstashFormatter.DEFAULT_MAPPING[field]
+            self.assertIn(field, logged)
 
     def test_logging_with_extra_fields(self):
         msg = 'foo_bar'
@@ -37,36 +38,41 @@ class LogstashLoggingTestCase(TestCase):
         }
 
         self.logger.info(msg, extra=extras)
-        logged = self.stream.getvalue()
+        logged = json.loads(self.stream.getvalue())
 
-        self.assertIn('"msg" => "{}"'.format(msg), logged)
+        self.assertEqual(msg, logged["msg"])
         for field in LogstashFormatter.DEFAULT_FIELDS:
-            self.assertIn('"{}" =>'.format(field), logged)
+            if field in LogstashFormatter.DEFAULT_MAPPING:
+                field = LogstashFormatter.DEFAULT_MAPPING[field]
+            self.assertIn(field, logged)
+
         for field, value in extras.items():
-            self.assertIn('"{}" => "{}"'.format(field, value), logged)
+            self.assertEqual(logged[field], value)
 
     def test_logging_with_dict(self):
         msg_dict = {"foo": "bar", "foo2": "bar2"}
 
         self.logger.info(msg_dict)
-        logged = self.stream.getvalue()
+        logged = json.loads(self.stream.getvalue())
 
-        self.assertIn(str(msg_dict), logged)
+        for k in msg_dict.keys():
+            self.assertIn(k, logged)
         for k, v in msg_dict.items():
-            self.assertIn('"{}" => "{}"'.format(k, v), logged)
+            self.assertEqual(logged[k], v)
         for field in LogstashFormatter.DEFAULT_FIELDS:
-            self.assertIn('"{}" =>'.format(field), logged)
+            if field in LogstashFormatter.DEFAULT_MAPPING:
+                field = LogstashFormatter.DEFAULT_MAPPING[field]
+            self.assertIn(field, logged)
 
     def test_logging_custom_fields(self):
         msg = 'foo_bar'
         self.handler.setFormatter(LogstashFormatter(['msg']))
 
         self.logger.info(msg)
-        logged = self.stream.getvalue()
+        logged = json.loads(self.stream.getvalue())
 
-        self.assertIn('"msg" =>', logged)
-        self.assertEqual(logged, self.formatter.to_logstash({"msg": "foo_bar"}) + "\n")
-        self.assertEqual(logged.count('=>'), 1)
+        self.assertIn("msg", logged)
+        self.assertDictEqual(logged, {"msg": "foo_bar", "@version": "1"})
 
     def test_logging_renaming(self):
         msg = 'foo_bar'

@@ -1,18 +1,19 @@
 # -*- coding: utf-8 -*-
 
+import json
 import logging
 
 
 class LogstashFormatter(logging.Formatter):
     """
-    Logging formatter for creating log entries in a Logstash native format.
+    Logging formatter for creating log entries in a JSON logstash-friendly format.
     Example:
         {
-            "msg" => ""GET / HTTP/1.1" 404 2327",
-            "status_code" => "404",
-            "message" => ""GET / HTTP/1.1" 404 2327",
-            "server_time" => "14/Sep/2016 11:13:00",
-            "asctime" => "2016-09-14 11:13:00,667"
+            "msg": ""GET / HTTP/1.1" 404 2327",
+            "status_code": "404",
+            "message": ""GET / HTTP/1.1" 404 2327",
+            "server_time": "14/Sep/2016 11:13:00",
+            "@timestamp": "2016-09-14 11:13:00,667"
         }
     """
     RESERVED_ATTRS = (
@@ -22,25 +23,26 @@ class LogstashFormatter(logging.Formatter):
         'processName', 'relativeCreated', 'stack_info', 'thread', 'threadName')
 
     DEFAULT_FIELDS = ('asctime', 'levelname', 'filename', 'funcName', 'msg', 'exc_info',)
-    main_fmt = '{{\n{}\n}}'
-    item_fmt = '"{}" => "{}"'
 
-    def __init__(self, fmt=None, datefmt=None, rename=None, version=None, *args, **kwargs):
+    DEFAULT_MAPPING = {
+        'asctime': '@timestamp',
+        'version': '@version'
+    }
+
+    def __init__(self, fmt=None, datefmt=None, rename=None, version="1", *args, **kwargs):
         super(LogstashFormatter, self).__init__(fmt, datefmt, *args, **kwargs)
 
-        if fmt:
+        if isinstance(fmt, (list, tuple)):
             self.fields = [f for f in fmt if f in self.RESERVED_ATTRS]
         else:
             self.fields = self.DEFAULT_FIELDS
 
         self.datefmt = datefmt
-
-        self.rename_map = rename or {}
-
+        self.rename_map = rename or self.DEFAULT_MAPPING
         self.version = version
 
     def to_logstash(self, obj):
-        return self.main_fmt.format(',\n'.join([self.item_fmt.format(k, v) for k, v in obj.items()]))
+        return json.dumps(obj)
 
     def format(self, record):
         _msg = record.msg

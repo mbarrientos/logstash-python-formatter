@@ -1,23 +1,27 @@
 logstash-python-formatter
 =========================
 
-Formatter for Python logging that outputs "native" logstash entries,
-using logstash-JSON format.
+Logging formatter for creating log entries in a JSON logstash-friendly format.
+
+Supports renaming of python default logging fields to logstash friendly names. e.g: renaming `asctime` to `@timestamp`
+
+LogstashFormatter can receive the following arguments:
+
+* `fmt`, list or tuple containing the fields to include in each entry. Defaults to ['asctime', 'levelname', 'filename', 'funcName', 'msg', 'exc_info'].
+* `datefmt`, date format string to be passed to formatTime(). Defaults to ISO8601 time format.
+* `rename`, dictionary containing mapping of { key: new_key } to be renamed. Defaults to { 'asctime': '@timestamp' }.
+* `version`, version as for the @version attribute used in Logstash. Defaults to "1".
 
 ###### Sample output:
 ```javascript
 {
-"@version" => "1"
-"levelname" => "WARNING",
-"status_code" => "404",
-"process" => "654",
-"lineno" => "152",
-"message" => "Not Found: /",
-"@timestamp" => "2016-09-14 13:33:39,672",
-"name" => "django.request",
-"funcName" => "get_response",
-"request" => "<WSGIRequest: GET '/'>",
-"module" => "base"
+  "@timestamp": "2016-09-28 16:24:24,799",
+  "@version": "1",
+  "exc_info": null,
+  "filename": "<ipython-input-21-de248ad5b09c>",
+  "funcName": "<module>",
+  "levelname": "INFO",
+  "msg": "This is a normal message to be logged"
 }
 ```
 
@@ -43,12 +47,12 @@ LOGGING = {
                 'format': ("asctime", "levelname", "name", "lineno", "message", 
                            "pathname", "module", "funcName", "process",),
                 'rename': {
-                    '@timestamp': 'asctime',
+                    'asctime': '@timestamp',
                 },
                 'version': '1'
             },
             ...
-        }        
+        }
 ...
 }
 ```
