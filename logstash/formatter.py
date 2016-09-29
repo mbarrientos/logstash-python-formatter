@@ -42,7 +42,7 @@ class LogstashFormatter(logging.Formatter):
         self.version = version
 
     def to_logstash(self, obj):
-        return json.dumps(obj)
+        return json.dumps(obj, default=str)
 
     def format(self, record):
         _msg = record.msg

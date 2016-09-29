@@ -3,9 +3,13 @@
 
 from distutils.core import setup
 
+import sys
 from setuptools import find_packages
 
 import logstash
+
+if sys.version_info[0] == 2:
+    from codecs import open
 
 with open('requirements.txt', 'r') as f:
     requires = f.read().splitlines()
@@ -17,7 +21,7 @@ setup(
     license=logstash.__license__,
     url=logstash.__url__,
     description=logstash.__description__,
-    long_description='\n'.join([open('README.md').read()]),
+    long_description='\n'.join([open('README.md', encoding='utf-8').read()]),
     keywords='python, logging, logstash, formatter, log',
     classifiers=[
         'Development Status :: 5 - Production/Stable',
