@@ -26,10 +26,17 @@ class LogstashFormatter(logging.Formatter):
 
     DEFAULT_MAPPING = {
         'asctime': '@timestamp',
-        'version': '@version'
     }
 
     def __init__(self, fmt=None, datefmt=None, rename=None, version="1", *args, **kwargs):
+        """
+        Builds the formatter.
+        :param fmt: list or tuple containing default fields to include in every entry
+        :param datefmt: date format as a string to be passed to formatTime(). Defaults to ISO8601 format.
+        :param rename: dictionary with {old_key: new_key} to be renamed in the log entries. Defaults to {'asctime':
+        '@timestamp'}.
+        :param version: version as for @version field in logging, always included. Defaults to "1".
+        """
         super(LogstashFormatter, self).__init__(fmt, datefmt, *args, **kwargs)
 
         if isinstance(fmt, (list, tuple)):
@@ -40,9 +47,6 @@ class LogstashFormatter(logging.Formatter):
         self.datefmt = datefmt
         self.rename_map = rename or self.DEFAULT_MAPPING
         self.version = version
-
-    def to_logstash(self, obj):
-        return json.dumps(obj, default=str)
 
     def format(self, record):
         _msg = record.msg
@@ -76,4 +80,4 @@ class LogstashFormatter(logging.Formatter):
         if self.version:
             fields_dict['@version'] = self.version
 
-        return self.to_logstash(fields_dict)
+        return json.dumps(fields_dict, default=str)
