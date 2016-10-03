@@ -21,14 +21,13 @@ setup(
     license=logstash.__license__,
     url=logstash.__url__,
     description=logstash.__description__,
-    long_description='\n'.join([open('README.md', encoding='utf-8').read()]),
+    long_description='\n'.join([open('README.rst', encoding='utf-8').read()]),
     keywords='python, logging, logstash, formatter, log',
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         # Environment
         'Environment :: Web Environment',
         # Intended Audience:
-        'Intended Audience :: Support',
         'Intended Audience :: Information Technology',
         'Intended Audience :: System Administrators',
         'Intended Audience :: Telecommunications Industry',
