@@ -5,7 +5,7 @@ from unittest import TestCase
 
 from six import StringIO
 
-from logstash import LogstashFormatter
+from logstash_formatter import LogstashFormatter
 
 
 class LogstashLoggingTestCase(TestCase):
