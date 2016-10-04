@@ -51,7 +51,7 @@ Include logstash formatter in your settings file:
     LOGGING = {
         'formatters': {
             'logstash': {
-                '()': 'core.logging.LogstashFormatter',
+                '()': 'logstash_formatter.LogstashFormatter',
                 'format': ("asctime", "levelname", "name", "lineno", "message",
                            "pathname", "module", "funcName", "process",),
                 'datefmt': '%Y-%m-%dT%H:%M:%S',
