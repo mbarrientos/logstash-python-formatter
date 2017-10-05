@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import datetime
 import json
 import logging
 
@@ -28,6 +29,9 @@ class LogstashFormatter(logging.Formatter):
         'asctime': '@timestamp',
     }
 
+    converter = datetime.datetime.fromtimestamp
+    default_time_format = '%Y-%m-%dT%H:%M:%S.%f'
+
     def __init__(self, fmt=None, datefmt=None, rename=None, version="1", *args, **kwargs):
         """
         Builds the formatter.
@@ -47,6 +51,20 @@ class LogstashFormatter(logging.Formatter):
         self.datefmt = datefmt
         self.rename_map = rename or self.DEFAULT_MAPPING
         self.version = version
+
+    def formatTime(self, record, datefmt=None):
+        """
+        Overriding formatTime to add milliseconds parsing
+        :param record:
+        :param datefmt:
+        :return:
+        """
+        ct = self.converter(record.created)
+        _format = datefmt or self.default_time_format
+
+        s = ct.strftime(_format)
+
+        return s
 
     def format(self, record):
         _msg = record.msg
