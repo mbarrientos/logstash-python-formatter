@@ -11,8 +11,7 @@ import logstash_formatter
 if sys.version_info[0] == 2:
     from codecs import open
 
-with open('requirements.txt', 'r') as f:
-    requires = f.read().splitlines()
+requires = []
 
 setup(
     name='logstash-python-formatter',
@@ -48,7 +47,7 @@ setup(
         'Topic :: Software Development :: Bug Tracking',
         'Topic :: System :: Logging',
     ],
-    packages=find_packages(),
+    packages=find_packages(exclude=["tests.*", "tests"]),
     include_package_data=True,
     install_requires=requires,
     test_suite='tests',
